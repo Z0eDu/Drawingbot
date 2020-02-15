@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<!--
+	Moon by GetTemplates.co
+	URL: https://gettemplates.co
+-->
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DrawingBot - ECE 4760</title>
+    <meta name="description" content="Core HTML Project">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" href="vendor/owlcarousel/owl.carousel.min.css">
+    <link rel="stylesheet" href="vendor/lightcase/lightcase.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400|Work+Sans:300,400,700" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.min.css">
+    <link rel="stylesheet" href="https://cdn.linearicons.com/free/1.0.0/icon-font.min.css">
+    <link href="https://file.myfontastic.com/7vRKgqrN3iFEnLHuqYhYuL/icons.css" rel="stylesheet">
+
+    <!-- Modernizr JS for IE8 support of HTML5 elements and media queries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+
+
+<body data-spy="scroll" data-target="#navbar-nav-header" class="single-layout">
+  <button id="myBtn"><a href="#top"  style="color: #554171;">Back to Top</a></button>
+</nav>		<div class="jumbotron d-flex align-items-center" style="background-image: url(img/screen.png)">
+  <div class="container text-center">
+    <h1 id=top class="display-2 mb-4 single-blog-title">DrawingBot</h1>
+    <h3_t><i>Zoe Du, Sijin Li, and Andrew Lin</i></h3_t>
+  </div>
+</div>
+<section id="gtco-single-content" class="bg-white">
+    <div class="container">
+        <div class="section-content blog-content">
+            <div class="row">
+                <!-- Single Content Holder -->
+                <div class="col-md-8 offset-md-2 mt-4">
+                    <style>
+                      table, th, td {
+                      padding: 10px;
+                      border: 1px solid black;
+                      border-collapse: collapse;
+                      }
+                    </style>
+                    <style>p { text-indent: 40px; }</style>
+                    <style>figcaption { font-style: italic;}</style>
+                    <style>h4 { font-style: italic;}</style>
+                    <style>pre {display:inline;}</style>
+                    <div id="toc_container">
+                    <c class="toc_title">Table of Contents</c>
+                    <ul class="toc_list">
+                      <li><a href="#Introduction">1 Introduction</a></li>
+                    <li><a href="#High_Level_Design">2 High Level Design</a></li>
+                    <li><a href="#Hardware_Design">3 Hardware Design</a></li>
+                    <ul>
+                      <li><a href="#3a">a. Mechanical </a></li>
+                      <li><a href="#3b">b. Electrical </a></li>
+                    </ul>
+                    <li><a href="#Software_Design">4 Software Design</a></li>
+                    <ul>
+                      <li><a href="#4a">a. Communication</a></li>
+                      <li><a href="#4b">b. PIC32</a></li>
+                      <li><a href="#4c">c. Raspberry Pi</a></li>
+                    </ul>
+                    <li><a href="#Results">5 Results</a></li>
+                    <li><a href="#Conclusions">6 Conclusion</a></li>
+                    <li><a href="#Appendix">Appendix</a></li>
+                    </div>
+                    <h3 id=Introduction>1. Introduction
+                    </h3>
+                    <br>
+                    <p>For our final project, we designed a drawing robot that can turn any computer image into line drawings. Our drawingbot features a pen that moves up and down, a base plate with a piece of paper attached that moves in the x-y plane and a neatly displayed menu on the TFT screen. Our system is consisted of 3 parts, PIC32 microcontroller, the actual “printer” system, and Raspberry Pi for image processing. Our drawing bot is very easy to operate as any user can upload a picture to the Raspberry Pi and run a python script that starts the printing process after calibrations. The menu displayed on the TFT screen connected to the PIC32 provides users a variety of options including adjusting the drawing speed, calibrating the pen and the base plate, displaying the IP address of the Raspberry Pi and two printing modes.</p>
+                    <br>
+                    <h3 id=High_Level_Design>2. High Level Design</h3>
+                    <img src="img/highlevel.png" class="center" width="600">
+                    <figure><figcaption>Figure 1. High-level Diagram</figcaption></figure>
+                    <p>Our inspiration comes from viral videos where people draw complex geometries consisting of many lines, and we think that maybe we can implement a drawing bot that draws anything using a pen and a piece of paper. As indicated in the graph above, our project can be broken into three major parts: a PIC32 microcontroller, a Raspberry Pi and a mechanical printing system. From a high-level perspective, the PIC32 controls two stepper motors, a servo motor, and a menu, and the RPi performs the image processing. There are two reasons why we added another RPi to our system. First, due to its limited RAM, the PIC32 cannot store images, not to mention image processing. Second, the PIC32 lacks an operating system, which makes uploading pictures when running the program very difficult.</p>
+                    <p>To start a printing task, we first need to choose a mode on the menu displayed by the TFT screen. There are two modes available: one is the manual mode and the other one is the auto mode prints images from the RPi. Calibration of the servo motor controlling the pen is sometimes necessary because the servo jolts every time the power turns on. A positional servo would be more ideal but ours broke last minute and a continuous servo was used instead. A joystick is used both as a menu controller and printer controller under manual mode. If we choose auto mode, after we pass the selected image to RPi, RPi performs image processing and outputs line tracing segments to PIC32 through UART serial communication. Consequently, PIC32 sends control signals to two stepper motors controlling the position of the board on the x-y plane, and one servo motor controlling the position of the pen on the z-axis. </p>
+                    <p>Regarding the image processing on RPi, we modified a
+                    <a style="font-weight:bold"href="https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123">canny edge detector</a>
+                     to find the contours of input images and used potrace library for line tracing. With different input images, we modify the parameters of the canny filter to remove noises and pass clean edge images to the line tracing process. The potrace library is used to convert the filtered image into segments of a vector graph and RPi sends the information to PIC32 using Uart Serial communication.</p>
+                    <p>The hardware and software tradeoffs take place sometimes. One thing is that our servo motor can’t 100% make sure the pen will go down to the same position on z-axis all the time, so we improve this problem by allowing software controlling the pen to repeat drawing each line segment twice because our base plate has a good reproducibility. We also reduce the overall cost of hardware by using a cheaper servo motor. Another thing is that we implemented a menu to provide the ease to control different modes. It adds a little software complexity, but it greatly reduces the time to debug as we can change different parameters of the system on the fly. It also provides a more intuitive user-friendly interface.</p>
+                    <p>We believe that our project is compliant with IEEE and other standards since our project aims to combine computer vision with a 2D printer which does not present any danger. We also did not follow any existing standards as we basically developed the system from scratch. We try to provide a user-friendly interface (the menu) and a stable printing system. It is completely safe and harmless to any user. All the images and links we provide on the website are either original or clearly referenced. All the components are designed by us so we did not infringe any patents or copyrights of any company. Any possible conflicts would be purely accidental and coincidental.</p>
+                    <br>
+                    <h3 id=Hardware_Design>3. Hardware Design  </h3>
+                    <br>
+                    <h4 id=3a>a. Mechanical  </h4>
+                    <br>
+                    <img width="500px" src="img/mech1.jpeg" class="center" alt="" >
+                    <figure><figcaption>Figure 2. Overview of the Mechanical System</figcaption></figure>
+                    <!-- <style>p { text-indent: 40px; }</style> -->
+                    <p>Our mechanical design consists of a base plate with a piece of paper attached that moves in the x-y plane and a pen above the base plate that moves up and down. The movement of the base plate is controlled by two stepper motors, with one controlling its x-direction movement and the other controlling its y-direction movement. In order to construct our system, we laser cut many acrylic pieces and built a slot that allows the structure attached with one of the stepper motors to slide through. This slot is placed on the left side, and on the other side is simply a flat surface on the same level with the bottom of the slot.</p>
+                    <p> The other stepper motor controls the x-direction movements of the base plate through a pulley system. We achieved this by putting a pulley and a belt inside a 3d-printed hollow box and we attached our stepper motor on this box. Connected on the other side of the belt is a similar hollow structure which has the base plate attached on it. Then, the torque generated by the motor drives the belt, which then drives the plate-box structure to slide on the slider. </p>
+                    <br>
+                    <img width="400px" src="img/mech5.jpg" class="center" alt="">
+                    <figure><figcaption>Figure 3. The Base Plate</figcaption></figure>
+                    <p>The hollow box holding the base plate allows the slider to fit in it perfectly. As shown below, the box also has a ball bearing attached inside it, which produces rolling friction and makes the box slide more smoothly. </p>
+                    <img width="400px" src="img/Slider.jpg" class="center" alt="">
+                    <figure><figcaption>Figure 4. Slider and the Hollow Structure Holding the Base Plate</figcaption></figure>
+                    <!-- <style>p { text-indent: 40px; }</style> -->
+                    <p>In order to control the base plate in y direction, we fixed the other stepper motor to one end of the slot and used that to control how the movable stepper motor slide in the slot. Similar to before, the two stepper motors are connected by a pulley-belt system built inside the hollow box structure. To reduce the friction during sliding, we also attached a ball bearing at the bottom of the hollow box so that the structure rolls in the slot more smoothly. Besides, our box is designed to be perfectly fit in the slot so that it slides without any jiggling. Since it can slide so perfectly in the slot, it became unnecessary to put another slot on the opposite side. We simply connected the other end of the slider holding the base plate to a hollow box with a ball bearing inside it and let it slide on the flat surface. It ends up to be sliding perfect in y direction. The system that controls the y-direction movement of the base plate is shown below.  </p>
+                    <br>
+                  <div class="row">
+                      <div class="column"><img width="500px" src="img/mech3.jpg" class="center;" >
+                    <figure><figcaption>Figure 5. Left Side View of the System</figcaption></figure></div/
+                    <br>
+                    <div class="column"><img width="500px" src="img/mech4.jpg" class="center" >
+                    <figure><figcaption>Figure 6. Right Side View of the System</figcaption></figure></div>
+                  </div>
+                    <p>Now that we have a base plate that successfully move in the x-y plane, we only need to control a pen to move in z direction so that it is only down when drawing and up when not drawing. We decided to use a servo motor to control the pen movement since it is cheaper but sufficient to achieve our goal. A positional servo would be more ideal but ours broke last minute and a continuous servo was used instead. We built a higher frame above the base plate and put an acrylic rectangular piece with a hole on it to suppport the pen. As shown in the picture below, we attached a pen and a servo motor together and let it go through the hole in the center. Since a servo motor drives angular motion but we want vertical motion, we attached two small pieces of barriers at the top and bottom of the pen-servo system to convert rotary motion to linear motion. Before using our drawingbot, we have to adjust the vertical position of our pen to make sure it is at the perfect level that touches the paper. Then, after calibration, the pen is moved up to the exact starting vertical position and ready to start working.</p>
+                    <br>
+                    <img width="300px" src="img/pen.jpg" class="center" alt=""></p>
+                    <figure><figcaption>Figure 7. Pen-Servo System</figcaption></figure>
+                    <br>
+                    <h4 id="3b">b. Electrical  </h4>
+                    <p>Our system includes a PIC32 microcontroller, a Raspberry Pi 3 B+, two EasyDriver stepper motor drivers, a joystick, and a button.</p>
+                    <br>
+                    <img width="700px"class="center" src="img/electrical.jpg" alt="">
+                    <figure><figcaption>Figure 8. system overview</figcaption></figure>
+                    <p>For a cleaner version of the mess above, below is a schematic of the same circuit.</p>
+                    <br>
+                    <img width="700px"class="center"src="img/circuit.png" alt="">
+                    <figure><figcaption>Figure 9. circuit overview</figcaption></figure>
+                    <p>As we can see, the driver is connected to the PIC32, the stepper motor, and the 5V power. The button is connected to ground and to PIC32 through a 330Ω resistor. The joystick is essentially two 10kΩ potentiometers that act as voltage dividers. They are connected to VDD and GND of the PIC32 as well as ADC pins through 10kΩ resistors. The joystick actually has a built-in button, but when we first tested it, it did not work with our code. We then switched to an external button which made things easier. In retrospect, the button could be active-high instead of active-low, and we could use the joystick alone to control the menu.   </p>
+                    <br>
+                    <h3 id="Software_Design">4. Software Design</h3>
+                    <br>
+                    <p>All of our source code can be found <a href="src/">here</a>.</p>
+                    <br>
+                    <h4 id="4a">a. Communication  </h4>
+                    <p>As mentioned earlier, the Raspberry Pi handles image processing and line tracing while the PIC32 handles motor control and user interfacing. The two machines communicate using UART with our custom commands. The table below shows the avaliable commands.</p>
+                    <table>
+                      <caption>Control Commands</caption>
+                      <tr>
+                        <td>Example Command</td>
+                        <td>Description</td>
+                      </tr>
+                      <tr>
+                        <td>I 10.148.3.188</td>
+                        <td>IP address of the RPi is 10.148.3.188</td>
+                      </tr>
+                      <tr>
+                        <td>D 1</td>
+                        <td>Lower pen, move up if 0</td>
+                      </tr>
+                      <tr>
+                        <td>X 200 Y 300</td>
+                        <td>Next point on the plate that the pen needs to be</td>
+                      </tr>
+                    </table>
+                    <p>When the RPi sends a message, it waits for the ACK message from PIC32 before sending the next message. Upon receiving a message, PIC32 parses the message and turns it into commands. Since the execution time of each command is unknown, PIC32 sends the ACK message, which is the same message that it receives, back to the RPi when the command is finished. Using this mechanism, we can make sure that no messages will be lost during communication.</p>
+                    <br>
+                    <h4 id="4b">b. PIC32</h4>
+                    <h5>Setup</h5>
+                    <p>For this project, we did not use the port expander as we only need 10 pins in total. After careful arrangements, we came up with the following pin configuration.</p>
+                    <table>
+                      <caption>Pin Configurations</caption>
+                      <tr>
+                        <td>Pin</td>
+                        <td>Function</td>
+                        <td>Description</td>
+                      </tr>
+                      <tr>
+                        <td>A0</td>
+                        <td>Digital output</td>
+                        <td>Motor 1 step output</td>
+                      </tr>
+                      <tr>
+                        <td>B4</td>
+                        <td>Digital output</td>
+                        <td>Motor 1 directional output</td>
+                      </tr>
+                      <tr>
+                        <td>A2</td>
+                        <td>Digital output</td>
+                        <td>Motor 2 step output</td>
+                      </tr>
+                      <tr>
+                        <td>B0</td>
+                        <td>Digital output</td>
+                        <td>Motor 2 directional output</td>
+                      </tr>
+                      <tr>
+                        <td>A3</td>
+                        <td>U2RX</td>
+                        <td>Receive pin in serial communication with RPi</td>
+                      </tr>
+                      <tr>
+                        <td>B8</td>
+                        <td>U2TX</td>
+                        <td>Transmit pin in serial communication with RPi</td>
+                      </tr>
+                      <tr>
+                        <td>B9</td>
+                        <td>OC3</td>
+                        <td>PWM output to control the servo</td>
+                      </tr>
+                      <tr>
+                        <td>A1</td>
+                        <td>AN2</td>
+                        <td>ADC input for X-axis</td>
+                      </tr>
+                      <tr>
+                        <td>B13</td>
+                        <td>AN11</td>
+                        <td>ADC input for Y-axis</td>
+                      </tr>
+                      <tr>
+                        <td>B3</td>
+                        <td>Digital input</td>
+                        <td>Button to operate the menu</td>
+                      </tr>
+                    </table>
+                    <p>Some key global variables that are either self-explanatory or with comments are listed below.</p>
+                    <table><tr><td><pre>
+#define manualMode 0
+#define autoMode 1
+#define menuMode 2
+int currMode = autoMode;
+int curr_x, curr_y, penDown; // penDown is a boolean vairbale, 1 means down and 0 means up
+char ip[15]; // buffer that stores the RPi IP address
+int print_speed = 5000; // delay between step input, explanation later</pre></td></tr></table>
+                    <br>
+                    <p>Additional setup include setting up ADC for the joystick and PWM for the servo.</p>
+                    <table><tr><td><pre>
+CloseADC10();   // ensure the ADC is off before setting the configuration
+// define setup parameters for OpenADC10
+// Turn module on | output in integer | trigger mode auto | enable  autosample
+#define PARAM1  ADC_MODULE_ON | ADC_FORMAT_INTG | ADC_CLK_AUTO | ADC_AUTO_SAMPLING_ON
+// define setup parameters for OpenADC10
+// ADC ref external | disable offset test | enable scan mode | perform 2 samples <br>| use one buffer | use MUXA mode
+// note: to read X number of pins you must set ADC_SAMPLES_PER_INT_X
+#define PARAM2  ADC_VREF_AVDD_AVSS | ADC_OFFSET_CAL_DISABLE | ADC_SCAN_ON <br>| ADC_SAMPLES_PER_INT_2 | ADC_ALT_BUF_OFF | ADC_ALT_INPUT_OFF
+// define setup parameters for OpenADC10
+// use ADC internal clock | set sample time
+#define PARAM3  ADC_CONV_CLK_INTERNAL_RC | ADC_SAMPLE_TIME_15
+// define setup parameters for OpenADC10
+// set AN1 and AN11
+#define PARAM4 ENABLE_AN1_ANA | ENABLE_AN11_ANA// pin 24
+// define setup parameters for OpenADC10
+// skip everything but AN1 and AN11
+#define PARAM5 SKIP_SCAN_AN0 | SKIP_SCAN_AN2 | SKIP_SCAN_AN3 | SKIP_SCAN_AN4 <br>| SKIP_SCAN_AN5 | SKIP_SCAN_AN6 | SKIP_SCAN_AN7 | SKIP_SCAN_AN8 | SKIP_SCAN_AN9 <br>| SKIP_SCAN_AN10 | SKIP_SCAN_AN12 | SKIP_SCAN_AN13 | SKIP_SCAN_AN14 | SKIP_SCAN_AN15
+// use ground as neg ref for A
+SetChanADC10( ADC_CH0_NEG_SAMPLEA_NVREF); // use ground as the negative reference
+OpenADC10( PARAM1, PARAM2, PARAM3, PARAM4, PARAM5 ); // configure ADC using parameters<br> defined above
+EnableADC10(); // Enable the ADC
+
+// Set up timer2 on,  interrupts, internal clock, prescalar 256 and period 3125 to<br> slow down the timer for the servo
+OpenTimer2(T2_ON | T2_SOURCE_INT | T2_PS_1_256, 3125);
+OpenOC3(OC_ON | OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE , 0, 0); //
+//// OC3 is PPS group 4, map to RPB9 (pin 18)
+PPSOutput(4, RPB9, OC3);</pre></td></tr></table>
+                    <br>
+                    <h5>Motor and servo control</h5>
+                    <p>To control the stepper motors, we use 2 GPIO pins to communicate with each EasyDriver, the STEP input and the DIR input. The DIR/directional input is a binary value that controls whether the motor spins clockwise or counter-clockwise. The STEP input determines the speed of the stepper motor, as the motor increments one micro step every time there is a posedge/low-to-high transition on the STEP input. Therefore, we created another helper function called <code>delayCycle</code> to help us produce a delay for toggling STEP that is stable and repeatable for accurate speed control. </p>
+                    <table><tr><td><pre>
+void delayCycle(int cycle){
+    int i;
+    for (i = 0;i < cycle; i++) __asm__("nop");
+}</pre></td></tr></table>
+                    <p>With every component in place, the <code>updateCoor</code> function uses a for loop to advance steps needed and calculates the delay for each iteration on the fly using <code>print_speed</code>.</p>
+                    <p>To control the servo, we resort to PWM. According to the image below from the <a href="http://www.ee.ic.ac.uk/pcheung/teaching/DE1_EE/stores/sg90_datasheet.pdf">datasheet</a>, we need a PWM frequency of 50Hz, which is why 256 and 3125 were picked when setting up the PWM, as <img src="http://latex.codecogs.com/svg.latex?\frac{40MHz}{256\times3125}=50Hz" border="0" height="">. Then, we operate at maximum speed at either direction for a fixed amount of time using the <code>delayCycle</code> function. </p>
+                    <img src="img/ServoPWM.png" width="400" class="center">
+                    <figure><figcaption>Figure 10. delay cycle</figcaption></figure>
+                    <h6>There are 4 threads in total, <code>timer</code>, <code>serial</code>, <code>manual</code>, and <code>menu</code>.</h6>
+                    <br>
+                    <h5>Timer thread</h5>
+                    <p>The timer thread is very straightforward. By <code>PT_YIELD_TIME_msec(1000)</code>, the thread updates <code>sys_time_seconds</code> approximately every second, and prints information such as current time, current coordinates, and current mode onto the TFT screen if the system is not in menu mode. </p>
+                    <br>
+                    <h5>Serial thread</h5>
+                    <p>The serial thread is a slightly modified version given of the serial thread from <code>Serial_1_2_3_test_all.c</code>. First, we use <code>PT_GetMachineBuffer</code> instead of <code>PT_GetSerialBuffer</code> because the PIC32 is communicaing with the RPi, and not a user with a keyboard. We removed all the functions that were unnecessary to our scenario such as <code>cursor_pos</code> that sets the cursor position for display purposes. We also set the timeout to 1000ms so PIC32 sends an ACK message back to RPi every second. We also made changes to <code>PT_GetMachineBuffer</code> by adding <code>UART2ClearAllErrors()</code> at the end of each call. Since we do not care about the errors, we can keep transmitting and not handle them.</p>
+                    <p>The received message is then parsed into commands and handled differently. With messages that start with 'I', the IP address is stored into the IP buffer and avaliable for the menu. With messages that start with 'D', we call the <code>controlPen</code> function and pass in the value to control the pen. With messages that start with 'X', we call the <code>updateCoor</code> function that updates the coordinates by controlling the motor.</p>
+                    <br>
+                    <h5>Manual thread</h5>
+                    <p>If the user chooses to enter manual mode using the menu, PIC32 stops receiving positional commands that start with 'X' and update the coordinates according to the ADC values from the joystick. Since the ADC is set up on two pins, we obtain both values of ADC10 and call the <code>updateCoor</code> function after denoising.</p>
+                    <table><tr><td><pre>
+#define joystick_x 519
+#define joystick_y 518 // default ADC values
+x_adc = ReadADC10(0);
+y_adc = 1023-ReadADC10(1);
+updateCoor(curr_x+10*((x_adc-joystick_x)/30),curr_y+10*((y_adc-joystick_y)/30));</pre></td></tr></table>
+                    <br>
+                    <h5>Menu thread  </h5>
+                    <p>This thread controls the entire menu. When not in menu mode, the thread waits for the button input and switches to menu mode when the user presses the button. It then iterates through a char* array and prints out every option. Depending on what the user chooses using the joystick and the button, it either prints out more options or the information that the user is after. Finally, it calls different functions to accomplish different tasks specified by the text. Below are images of the TFT display when operating in menu mode.</p>
+                    <div class="row">
+                    <div class="column2"><img src="img/menu1.jpg" width="500" class="center"></figure></div>
+                    <div class="column2"><img src="img/menu2.jpg" width="500" class="center"><figure><figcaption>Figure 11. Menu</figcaption></figure></div>
+                    <div class="column2"><img src="img/menu3.jpg" width="500" class="center"></div>
+                    <div>
+                    <h4 id="4c">c. Raspberry Pi  </h4>
+                    <p>A Rasberry Pi 3 B+ is used for the purpose of image processing. First, the image goes through a canny edge detector and then to the potrace library. The outputs are points representing segments in a vector graph which we can send to PIC32 through serial communication.</p>
+                    <p><a style="font-weight:bold"href="https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123">Canny edge detector</a> is composed of five steps: noise reduction, gradient calculation, non-maximum suppression, double threshold and edge tracking by hysteresis. For optimal performance of image processing, we modified different parameters to get an edge diagram. Then we use functions of the pypotrace library to get the segment points of the edges in vector graph format. Iterating through those segments, we send PIC32 pairs of coordinates in the x-y plane and the binary number represent the position of the pen in z direction. Before and after each task, the RPi sends "X 0 Y 0" for auto home and "D0” to move the pen away from the paper.</p>
+                    <p>The outputs of the potrace function describes the path in terms of an array of segments. The curves in an image are described by two types of segments, CornerSegment or BezierSegment, as shown below. We choose to use corner segments and eliminate all bezier segments by setting the corner threadshold parameter Alphamax to be 0, allowing no smoothing to be done. This way, our image is defined by traces that consist of many points with small incremental straight lines connecting them</p>
+                    <div class=row>
+                    <div class=column>
+                    <p>CornerSegment:
+                    <img src="https://pythonhosted.org/pypotrace/_images/corner.png" class="center" width=300></div>
+                    <div class=column><p>BezierSegment:
+                    <img src="https://pythonhosted.org/pypotrace/_images/bezier.png" class="center"> </p></div>
+                  </div>
+                    <br>
+                    <p>We also added a cron job so that the Pi detects its own IP address, and sends it through serial to the PIC32 at startup. This ensures users can SSH into the RPi even though it might have a dynamic IP address.</p>
+                    <h3 id="Results">5. Results  </h3>
+                    <p>We consider our final system reasonably successful. When given an image and the proper threshold, the system produces satisfactory results and enjoyable timelapse videos. </p>
+                    <img src="img/spongebob.jpg" width="300">
+                    <img src="img/spongebob.png" width="300">
+                    <video width="750" controls>
+                        <source src="timelapse/timelapse1.mov" type="video/mp4"class=center>
+                    </video>
+                    <img src="img/dan1.jpg" width="300">
+                    <img src="img/dan1.png" width="300">
+                    <video width="750" controls>
+                        <source src="timelapse/timelapse2.mov" type="video/mp4" class=center>
+                    </video>
+                    <p>The printing speed is also reasonable. The second image shown above takes about 2 to 3 minutes to draw. When drawing a simpler picture, like the CocaCola logo, our system finishes the drawing in less than 2 minutes.</p>
+                    <p>Below is our demo video.</p>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/OU4FsJibq4w" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <p>As Prof. Land says in the video, "reproducibility is quite good." When drawing the same line repetaedly, it is not rare for the pen to draw on the exact same locations. As for usability, our system only requires basic skills such as SSH and using a Linux system. </p>
+                    <br>
+                    <h3 id="Conclusions">6. Conclusions  </h3>
+                    <br>
+                    <h5>Evaluation</h5>
+                    <p>Our design defiantly meets our expectations and even exceeds them in terms of functionality, as we did not plan to have a menu and manual mode at the beginning. We are satisfied with the overall integration and accuracy of this project since our line tracing has a millimeter-level accuracy. </p>
+                    <br>
+                    <h5>Future Improvements</h5>
+                    <p>If we have more time and budget, we would design a better pen-control system with a stepper motor to improve the accuracy of the pen and eliminate the necessity of calibration every time. We could use two threaded rods or linear rails on the x and y-axis to improve the stability of the printing board movement. For software design, we could improve printing efficiency by optimizing the path. Our current path is not optimized as the movement between different segmants is not minimized. </p>
+                    <br>
+                    <h5>Safety, intellectual and legal consideration</h5>
+                    <p>This 2D printer is completely safe and there’s no direct contact with anyone during operation. Regarding intellectual property, our code and mechanical parts are all original except the <a style="font-weight:bold"href="https://towardsdatascience.com/canny-edge-detection-step-by-step-in-python-computer-vision-b49c3a2d8123">canny edge detector</a>. Our project is compliant with IEEE ethics standards and there are no safety, intellectual or legal problems involved.</p>
+                    <h3 id="Appendix">Appendix</h3>
+                    <br>
+                    <h4>A: Approval</h4>
+                    <br>
+                    <p>The group approves this report for inclusion on the course website. The group approves the video for inclusion on the course youtube channel.</p>
+                    <br>
+                    <h4>B: Budget</h4>
+                    <br>
+                    <table>
+                      <tr>
+                        <td>Name</td>
+                        <td>Part Number</td>
+                        <td>Vendor</td>
+                        <td>Price</td>
+                      </tr>
+                      <tr>
+                        <td>Big Board</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>10</td>
+                      </tr>
+                      <tr>
+                        <td>PIC32</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>5</td>
+                      </tr>
+                      <tr>
+                        <td>Microstick</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>1</td>
+                      </tr>
+                      <tr>
+                        <td>Breadboard</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>6</td>
+                      </tr>
+                      <tr>
+                        <td>Power Supply</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>5</td>
+                      </tr>
+                      <tr>
+                        <td>TFT</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>10</td>
+                      </tr>
+                      <tr>
+                        <td>Stepper Motor Drivers</td>
+                        <td>CYT1072</td>
+                        <td>Amazon</td>
+                        <td>9.99</td>
+                      </tr>
+                      <tr>
+                        <td>Stepper Motor</td>
+                        <td>17HS16-2004S</td>
+                        <td>Amazon</td>
+                        <td>12.99</td>
+                      </tr>
+                      <tr>
+                        <td>Short Body Nema 17 Bipolar Stepper Motor</td>
+                        <td>17HS08-1004S</td>
+                        <td>Amazon</td>
+                        <td>10.99</td>
+                      </tr>
+                      <tr>
+                        <td>Belt</td>
+                        <td>KYES51</td>
+                        <td>Amazon</td>
+                        <td>6</td>
+                      </tr>
+                      <tr>
+                        <td>Joystick</td>
+                        <td>8541667209</td>
+                        <td>Amazon</td>
+                        <td>4.89</td>
+                      </tr>
+                      <tr>
+                        <td>Servo</td>
+                        <td>DF9GMS</td>
+                        <td>Amazon</td>
+                        <td>5.99</td>
+                      </tr>
+                      <tr>
+                        <td>Ball Bearing</td>
+                        <td>2634038</td>
+                        <td>Amazon</td>
+                        <td>3.67</td>
+                      </tr>
+                      <tr>
+                        <td>Kingston 8GB microSDHC Class 4 Flash Memory Card</td>
+                        <td>N/A</td>
+                        <td>Amazon</td>
+                        <td>3.99</td>
+                      </tr>
+                      <tr>
+                        <td>Pre-owned RPi 3 B+</td>
+                        <td>N/A</td>
+                        <td>Ebay</td>
+                        <td>10</td>
+                      </tr>
+                      <tr>
+                        <td>Jumper Cables</td>
+                        <td>N/A</td>
+                        <td>lab</td>
+                        <td>3.5</td>
+                      </tr>
+                      <tr>
+                        <td>Acrylic and PLA</td>
+                        <td>N/A</td>
+                        <td>scrap</td>
+                        <td>free</td>
+                      </tr>
+                      <tr>
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        <td><b>109.01</b></td>
+                      </tr>
+                    </table>
+                    <br>
+                    <h4>C: Work Distribution</h4>
+                    <br>
+                    <table>
+                      <tr>
+                        <td>Mechanical</td>
+                        <td>PIC32</td>
+                        <td>RPi</td>
+                        <td>Report</td>
+                      </tr>
+                      <tr>
+                        <td>Zoe and Sijin</td>
+                        <td>Andrew</td>
+                        <td>Zoe, Sijin, and Andrew</td>
+                        <td>Zoe, Sijin, and Andrew</td>
+                      </tr>
+                    </table>
+                    <br>
+                    <h4>D: Source Code and Schematics</h4>
+                    <br>
+                    <img width="700px"class="center"src="img/circuit.png" alt="">
+                    <p>All of our source code can be found <a href="src/">here</a>.</p>
+                    <br>
+                    <h4>E: References</h4>
+                    <br>
+                    <p>Sahir, Sofiane. “Canny Edge Detection Step by Step in Python — Computer Vision.” <i>Medium.</i></p>
+                    <p>Datasheet for the servo can be found <a href="http://www.ee.ic.ac.uk/pcheung/teaching/DE1_EE/stores/sg90_datasheet.pdf">here</a>.<p>
+                    <p>Everything about the motor drivers can be found <a href="https://www.schmalzhaus.com/EasyDriver/">here</a>.<p>
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="mastfoot mb-3 bg-white py-4 border-top">
+    <div class="inner container">
+         <div class="row">
+         	<div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+         		<p class="mb-0">&copy; 2019 Moon. All Right Reserved. Design by <a href="https://gettemplates.co" target="_blank">GetTemplates.co</a>.</p>
+         	</div>
+
+            <div class="col-md-6">
+            	<nav class="nav nav-mastfoot justify-content-md-end justify-content-center">
+	                <a class="nav-link" href="#">
+	                	<i class="icon-facebook"></i>
+	                </a>
+	                <a class="nav-link" href="#">
+	                	<i class="icon-twitter"></i>
+	                </a>
+	                <a class="nav-link" href="#">
+	                	<i class="icon-instagram"></i>
+	                </a>
+	                <a class="nav-link" href="#">
+	                	<i class="icon-linkedin"></i>
+	                </a>
+	                <a class="nav-link" href="#">
+	                	<i class="icon-youtube"></i>
+	                </a>
+	                <a class="nav-link" href="#">
+	                	<i class="icon-pinterest"></i>
+	                </a>
+	            </nav>
+            </div>
+
+        </div>
+    </div>
+</footer>	</div>
+
+</div>
+</body>
+</html>
